@@ -3,22 +3,22 @@ import { HydratedDocument } from 'mongoose';
 
 export type WatchlistDocument = HydratedDocument<Watchlist>;
 
-type Symbol = Array<string>;
+export type Symbol = Array<string>;
 
 @Schema()
 export class Watchlist {
-  @Prop()
+  @Prop({ required: true })
   name: string;
 
   @Prop()
   description: string;
 
-  @Prop()
+  @Prop({ required: true })
   ownerId: string;
 
-  @Prop()
+  @Prop({ required: true })
   // eslint-disable-next-line @typescript-eslint/ban-types
   symbols: Symbol[];
 }
 
-export const CatSchema = SchemaFactory.createForClass(Watchlist);
+export const WatchlistSchema = SchemaFactory.createForClass(Watchlist);
