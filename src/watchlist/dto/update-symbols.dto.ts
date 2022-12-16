@@ -2,7 +2,8 @@ import { IsArray } from 'class-validator/types/decorator/decorators';
 
 export class UpdateSymbolsDto {
   @IsArray()
-  readonly add: string[];
+  add: string[];
+
   @IsArray()
-  readonly remove: string[];
+  remove: string[];
 }

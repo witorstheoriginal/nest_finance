@@ -5,10 +5,7 @@ import {
   Watchlist,
   WatchlistDocument,
 } from 'src/watchlist/schemas/watchlist.schema';
-import {
-  CreateWatchlistDto,
-  FindOneParams,
-} from 'src/watchlist/dto/create-watchlist.dto';
+import { CreateWatchlistDto } from 'src/watchlist/dto/create-watchlist.dto';
 import { UpdateSymbolsDto } from './dto/update-symbols.dto';
 import { UpdateWatchlistDto } from './dto/update-watchlist.dto';
 
@@ -19,8 +16,14 @@ export class WatchlistService {
     private watchlistModel: Model<WatchlistDocument>,
   ) {}
 
-  async create(createWatchlistDto: CreateWatchlistDto): Promise<Watchlist> {
-    const createdWatchlist = new this.watchlistModel(createWatchlistDto);
+  create(
+    createWatchlistDto: CreateWatchlistDto,
+    ownerId: string,
+  ): Promise<WatchlistDocument | null> {
+    const createdWatchlist = new this.watchlistModel({
+      ...createWatchlistDto,
+      ownerId,
+    });
     createWatchlistDto.symbols = Array.from(
       new Set(createWatchlistDto.symbols),
     );
@@ -28,31 +31,35 @@ export class WatchlistService {
     return createdWatchlist.save();
   }
 
-  async findOne(id: FindOneParams): Promise<Watchlist> {
-    return this.watchlistModel.findOne(id).exec();
+  findById(id: string, ownerId: string): Promise<WatchlistDocument | null> {
+    return this.watchlistModel.findOne({ _id: id, ownerId }).exec();
   }
 
-  async updateSymbols(id: FindOneParams, updateSymbolsDto: UpdateSymbolsDto) {
-    const watchlist = this.findOne(id);
-
-    (await watchlist).symbols = (await watchlist).symbols.concat(
-      Array.from(new Set(updateSymbolsDto.add)),
-    );
-
-    const elementsToDeleteSe = new Set(updateSymbolsDto.add);
-    (await watchlist).symbols = (await watchlist).symbols.filter((element) => {
-      return !elementsToDeleteSe.has(element);
-    });
-
-    return this.watchlistModel.updateOne(id, watchlist).exec;
+  updateSymbols(params: {
+    id: string;
+    updateSymbolsDto: UpdateSymbolsDto;
+    ownerId: string;
+  }) {
+    return this.watchlistModel
+      .updateOne(
+        { _id: params.id, ownerId: params.ownerId },
+        { $addToSet: { symbols: { $each: params.updateSymbolsDto } } },
+      )
+      .exec();
   }
 
-  async updateOne(id: FindOneParams, updateWatchlistDto: UpdateWatchlistDto) {
-    return this.watchlistModel.updateOne(id, updateWatchlistDto).exec;
+  updateById(params: {
+    id: string;
+    updateWatchlistDto: UpdateWatchlistDto;
+    ownerId: string;
+  }) {
+    return this.watchlistModel
+      .updateOne({ _id: params.id, ownerId: params.ownerId })
+      .exec();
   }
 
-  async deleteOne(id: FindOneParams) {
-    return this.watchlistModel.deleteOne(id).exec;
+  delete(id: string, ownerId: string) {
+    return this.watchlistModel.deleteOne({ _id: id, ownerId }).exec();
   }
 }
 
