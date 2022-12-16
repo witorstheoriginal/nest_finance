@@ -31,7 +31,7 @@ export class WatchlistController {
 
   @Get(':id')
   findById(@Param() { id }: FindOneParams) {
-    return this.watchlistService.findById(id, userId);
+    return this.watchlistService.find(id, userId);
   }
 
   @Post(':id/symbols')
@@ -51,7 +51,7 @@ export class WatchlistController {
     @Param() { id }: FindOneParams,
     @Body() updateWatchlistDto: UpdateWatchlistDto,
   ) {
-    return this.watchlistService.updateById({
+    return this.watchlistService.update({
       id,
       updateWatchlistDto,
       ownerId: userId,

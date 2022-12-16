@@ -1,4 +1,4 @@
-import { Connection, Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
@@ -23,15 +23,13 @@ export class WatchlistService {
     const createdWatchlist = new this.watchlistModel({
       ...createWatchlistDto,
       ownerId,
+      symbols: Array.from(new Set(createWatchlistDto.symbols)),
     });
-    createWatchlistDto.symbols = Array.from(
-      new Set(createWatchlistDto.symbols),
-    );
 
     return createdWatchlist.save();
   }
 
-  findById(id: string, ownerId: string): Promise<WatchlistDocument | null> {
+  find(id: string, ownerId: string): Promise<WatchlistDocument | null> {
     return this.watchlistModel.findOne({ _id: id, ownerId }).exec();
   }
 
@@ -43,18 +41,24 @@ export class WatchlistService {
     return this.watchlistModel
       .updateOne(
         { _id: params.id, ownerId: params.ownerId },
-        { $addToSet: { symbols: { $each: params.updateSymbolsDto } } },
+        { $addToSet: { symbols: { $each: params.updateSymbolsDto.add } } },
+        { $pull: { symbols: params.updateSymbolsDto.remove } },
       )
       .exec();
   }
 
-  updateById(params: {
+  update(params: {
     id: string;
     updateWatchlistDto: UpdateWatchlistDto;
     ownerId: string;
   }) {
     return this.watchlistModel
-      .updateOne({ _id: params.id, ownerId: params.ownerId })
+      .updateOne({
+        _id: params.id,
+        ownerId: params.ownerId,
+        name: params.updateWatchlistDto.name,
+        description: params.updateWatchlistDto.description,
+      })
       .exec();
   }
 
@@ -62,5 +66,3 @@ export class WatchlistService {
     return this.watchlistModel.deleteOne({ _id: id, ownerId }).exec();
   }
 }
-
-Connection;
