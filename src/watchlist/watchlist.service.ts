@@ -1,8 +1,11 @@
 import { Connection, Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Watchlist, WatchlistDocument } from 'src/schemas/watchlist.schema';
-import { CreateWatchlistDto } from 'src/dto/watchlist.dto';
+import {
+  Watchlist,
+  WatchlistDocument,
+} from 'src/watchlist/schemas/watchlist.schema';
+import { CreateWatchlistDto } from 'src/watchlist/dto/watchlist.dto';
 
 @Injectable()
 export class WatchlistService {
@@ -20,4 +23,5 @@ export class WatchlistService {
     return this.watchlistModel.find().exec();
   }
 }
+
 Connection;

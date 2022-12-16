@@ -3,8 +3,6 @@ import { HydratedDocument } from 'mongoose';
 
 export type WatchlistDocument = HydratedDocument<Watchlist>;
 
-export type Symbol = Array<string>;
-
 @Schema()
 export class Watchlist {
   @Prop({ required: true })
@@ -17,8 +15,7 @@ export class Watchlist {
   ownerId: string;
 
   @Prop({ required: true })
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  symbols: Symbol[];
+  symbols: string[];
 }
 
 export const WatchlistSchema = SchemaFactory.createForClass(Watchlist);

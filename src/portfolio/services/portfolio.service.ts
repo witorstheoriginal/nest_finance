@@ -1,8 +1,8 @@
 import { Connection, Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { CreatePortfolioDto } from './dto/create-portfolio.dto';
-import { Portfolio, PortfolioDocument } from 'src/schemas/portfolio.schema';
+import { CreatePortfolioDto } from './dto/portfolio.dto';
+import { Portfolio, PortfolioDocument } from 'src/portfolio/portfolio.schema';
 
 @Injectable()
 export class PortfolioService {

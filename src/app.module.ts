@@ -9,7 +9,7 @@ import { AppService } from './app.service';
       'mongodb+srv://root:<password>@maincluster.ufwqaei.mongodb.net/?retryWrites=true&w=majority',
     ),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
