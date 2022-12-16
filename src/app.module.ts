@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { WatchlistController } from './watchlist/watchlist.controller';
+import { WatchlistService } from './watchlist/watchlist.service';
 
 @Module({
   imports: [
@@ -9,7 +9,7 @@ import { AppService } from './app.service';
       'mongodb+srv://root:<password>@maincluster.ufwqaei.mongodb.net/?retryWrites=true&w=majority',
     ),
   ],
-  controllers: [],
-  providers: [],
+  controllers: [WatchlistController],
+  providers: [WatchlistService],
 })
 export class AppModule {}

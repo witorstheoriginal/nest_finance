@@ -5,7 +5,12 @@ import {
   Watchlist,
   WatchlistDocument,
 } from 'src/watchlist/schemas/watchlist.schema';
-import { CreateWatchlistDto } from 'src/watchlist/dto/watchlist.dto';
+import {
+  CreateWatchlistDto,
+  FindOneParams,
+} from 'src/watchlist/dto/create-watchlist.dto';
+import { UpdateSymbolsDto } from './dto/update-symbols.dto';
+import { UpdateWatchlistDto } from './dto/update-watchlist.dto';
 
 @Injectable()
 export class WatchlistService {
@@ -16,11 +21,38 @@ export class WatchlistService {
 
   async create(createWatchlistDto: CreateWatchlistDto): Promise<Watchlist> {
     const createdWatchlist = new this.watchlistModel(createWatchlistDto);
+    createWatchlistDto.symbols = Array.from(
+      new Set(createWatchlistDto.symbols),
+    );
+
     return createdWatchlist.save();
   }
 
-  async findAll(): Promise<Watchlist[]> {
-    return this.watchlistModel.find().exec();
+  async findOne(id: FindOneParams): Promise<Watchlist> {
+    return this.watchlistModel.findOne(id).exec();
+  }
+
+  async updateSymbols(id: FindOneParams, updateSymbolsDto: UpdateSymbolsDto) {
+    const watchlist = this.findOne(id);
+
+    (await watchlist).symbols = (await watchlist).symbols.concat(
+      Array.from(new Set(updateSymbolsDto.add)),
+    );
+
+    const elementsToDeleteSe = new Set(updateSymbolsDto.add);
+    (await watchlist).symbols = (await watchlist).symbols.filter((element) => {
+      return !elementsToDeleteSe.has(element);
+    });
+
+    return this.watchlistModel.updateOne(id, watchlist).exec;
+  }
+
+  async updateOne(id: FindOneParams, updateWatchlistDto: UpdateWatchlistDto) {
+    return this.watchlistModel.updateOne(id, updateWatchlistDto).exec;
+  }
+
+  async deleteOne(id: FindOneParams) {
+    return this.watchlistModel.deleteOne(id).exec;
   }
 }
 
