@@ -13,7 +13,7 @@ import { UpdateSymbolsDto } from './dto/update-symbols.dto';
 import { UpdateWatchlistDto } from './dto/update-watchlist.dto';
 import { WatchlistService } from './watchlist.service';
 
-const userId = process.env.USER_ID as string;
+const userId = '639c2eaad5318fb8cd1d1f4c';
 
 export class FindOneParams {
   @IsString()

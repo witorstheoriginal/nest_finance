@@ -1,11 +1,8 @@
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  Watchlist,
-  WatchlistDocument,
-} from 'src/watchlist/schemas/watchlist.schema';
-import { CreateWatchlistDto } from 'src/watchlist/dto/create-watchlist.dto';
+import { Watchlist, WatchlistDocument } from './schemas/watchlist.schema';
+import { CreateWatchlistDto } from './dto/create-watchlist.dto';
 import { UpdateSymbolsDto } from './dto/update-symbols.dto';
 import { UpdateWatchlistDto } from './dto/update-watchlist.dto';
 

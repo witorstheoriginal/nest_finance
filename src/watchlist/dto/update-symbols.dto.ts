@@ -1,4 +1,4 @@
-import { IsArray } from 'class-validator/types/decorator/decorators';
+import { IsArray } from 'class-validator';
 
 export class UpdateSymbolsDto {
   @IsArray()
