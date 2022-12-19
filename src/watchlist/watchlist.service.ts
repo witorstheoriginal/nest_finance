@@ -30,32 +30,52 @@ export class WatchlistService {
     return this.watchlistModel.findOne({ _id: id, ownerId }).exec();
   }
 
-  updateSymbols(params: {
+  async updateSymbols(params: {
     id: string;
     updateSymbolsDto: UpdateSymbolsDto;
     ownerId: string;
-  }) {
-    return this.watchlistModel
-      .updateOne(
+  }): Promise<WatchlistDocument | null> {
+    let result: WatchlistDocument | null = await this.find(
+      params.id,
+      params.ownerId,
+    );
+
+    if (params.updateSymbolsDto.add.length > 0) {
+      result = await this.watchlistModel.findOneAndUpdate(
         { _id: params.id, ownerId: params.ownerId },
-        { $addToSet: { symbols: { $each: params.updateSymbolsDto.add } } },
-        { $pull: { symbols: params.updateSymbolsDto.remove } },
-      )
-      .exec();
+        {
+          $addToSet: { symbols: { $each: params.updateSymbolsDto.add } },
+        },
+        { new: true },
+      );
+    }
+    if (params.updateSymbolsDto.remove.length > 0) {
+      result = await this.watchlistModel.findOneAndUpdate(
+        { _id: params.id, ownerId: params.ownerId },
+        {
+          $pull: { symbols: { $in: params.updateSymbolsDto.remove } },
+        },
+        { new: true },
+      );
+    }
+
+    return result;
   }
 
   update(params: {
     id: string;
     updateWatchlistDto: UpdateWatchlistDto;
     ownerId: string;
-  }) {
+  }): Promise<WatchlistDocument | null> {
     return this.watchlistModel
-      .updateOne({
-        _id: params.id,
-        ownerId: params.ownerId,
-        name: params.updateWatchlistDto.name,
-        description: params.updateWatchlistDto.description,
-      })
+      .findOneAndUpdate(
+        { _id: params.id, ownerId: params.ownerId },
+        {
+          name: params.updateWatchlistDto.name,
+          description: params.updateWatchlistDto.description,
+        },
+        { new: true },
+      )
       .exec();
   }
 
