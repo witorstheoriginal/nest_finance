@@ -2,7 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigService, ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import configuration from './configuration';
+import { UserModule } from './user/user.module';
 import { WatchlistModule } from './watchlist/watchlist.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -18,6 +21,9 @@ import { WatchlistModule } from './watchlist/watchlist.module';
       }),
     }),
     WatchlistModule,
+    UserModule,
+    AuthModule,
+    UsersModule,
   ],
 })
 export class AppModule {}

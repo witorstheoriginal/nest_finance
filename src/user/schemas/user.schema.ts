@@ -6,17 +6,10 @@ export type UserDocument = HydratedDocument<User>;
 @Schema()
 export class User {
   @Prop({ required: true })
-  name: string;
-
-  @Prop()
-  description: string;
+  email: string;
 
   @Prop({ required: true })
-  ownerId: string;
-
-  @Prop({ required: true })
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  symbols: Symbol[];
+  password: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
