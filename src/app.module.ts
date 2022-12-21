@@ -4,8 +4,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import configuration from './configuration';
 import { UserModule } from './user/user.module';
 import { WatchlistModule } from './watchlist/watchlist.module';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -22,8 +20,6 @@ import { UsersModule } from './users/users.module';
     }),
     WatchlistModule,
     UserModule,
-    AuthModule,
-    UsersModule,
   ],
 })
 export class AppModule {}
