@@ -54,7 +54,7 @@ export class UserController {
     };
   }
 
-  /*@ Get(':id')
+  /*@ Get(':id') d
   findById(@Param() { id }: FindOneParams) {
     return this.userService.find(id, userId);
   }
