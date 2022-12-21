@@ -6,4 +6,5 @@ export default () => ({
     baseUrl: process.env.FINNHUB_API_BASE_URL,
     apiKey: process.env.FINNHUB_API_KEY,
   },
+  jwtSecret: process.env.JWT_SECRET,
 });
