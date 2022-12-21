@@ -6,14 +6,16 @@ import {
   Param,
   Post,
   Put,
-} from '@nestjs/common/decorators';
+  UseGuards,
+} from '@nestjs/common';
 import { IsString } from 'class-validator';
+import { CurrentUser } from 'src/user/decorators';
+import { CurrentUserEntity } from 'src/user/types';
 import { CreateWatchlistDto } from './dto/create-watchlist.dto';
 import { UpdateSymbolsDto } from './dto/update-symbols.dto';
 import { UpdateWatchlistDto } from './dto/update-watchlist.dto';
 import { WatchlistService } from './watchlist.service';
-
-const userId = '639c2eaad5318fb8cd1d1f4c';
+import { AuthGuard } from '@nestjs/passport';
 
 export class FindOneParams {
   @IsString()
@@ -21,28 +23,36 @@ export class FindOneParams {
 }
 
 @Controller('watchlist')
+@UseGuards(AuthGuard())
 export class WatchlistController {
   constructor(private readonly watchlistService: WatchlistService) {}
 
   @Post()
-  create(@Body() createWatchlistDto: CreateWatchlistDto) {
-    return this.watchlistService.create(createWatchlistDto, userId);
+  create(
+    @Body() createWatchlistDto: CreateWatchlistDto,
+    @CurrentUser() user: CurrentUserEntity,
+  ) {
+    return this.watchlistService.create(createWatchlistDto, user.sub);
   }
 
   @Get(':id')
-  findById(@Param() { id }: FindOneParams) {
-    return this.watchlistService.find(id, userId);
+  findById(
+    @Param() { id }: FindOneParams,
+    @CurrentUser() user: CurrentUserEntity,
+  ) {
+    return this.watchlistService.find(id, user.sub);
   }
 
   @Post(':id/symbols')
   updateSymbols(
     @Param() { id }: FindOneParams,
     @Body() updateSymbolsDto: UpdateSymbolsDto,
+    @CurrentUser() user: CurrentUserEntity,
   ) {
     return this.watchlistService.updateSymbols({
       id,
       updateSymbolsDto,
-      ownerId: userId,
+      ownerId: user.sub,
     });
   }
 
@@ -50,16 +60,20 @@ export class WatchlistController {
   updateById(
     @Param() { id }: FindOneParams,
     @Body() updateWatchlistDto: UpdateWatchlistDto,
+    @CurrentUser() user: CurrentUserEntity,
   ) {
     return this.watchlistService.update({
       id,
       updateWatchlistDto,
-      ownerId: userId,
+      ownerId: user.sub,
     });
   }
 
   @Delete(':id')
-  deleteById(@Param() { id }: FindOneParams) {
-    return this.watchlistService.delete(id, userId);
+  deleteById(
+    @Param() { id }: FindOneParams,
+    @CurrentUser() user: CurrentUserEntity,
+  ) {
+    return this.watchlistService.delete(id, user.sub);
   }
 }
