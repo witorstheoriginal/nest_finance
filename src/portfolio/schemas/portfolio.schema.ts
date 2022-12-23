@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
+import { Position } from './position.schema';
 
 export type PortfolioDocument = HydratedDocument<Portfolio>;
 
@@ -8,15 +9,11 @@ export class Portfolio {
   @Prop({ required: true })
   name: string;
 
-  @Prop()
-  description: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Position' })
+  positions: Position[];
 
   @Prop({ required: true })
   ownerId: string;
-
-  @Prop({ required: true })
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  symbols: Symbol[];
 }
 
 export const PortfolioSchema = SchemaFactory.createForClass(Portfolio);
