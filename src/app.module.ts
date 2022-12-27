@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigService, ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import configuration from './configuration';
+import { PortfolioModule } from './portfolio/portfolio.module';
 import { UserModule } from './user/user.module';
 import { WatchlistModule } from './watchlist/watchlist.module';
 
@@ -20,6 +21,7 @@ import { WatchlistModule } from './watchlist/watchlist.module';
     }),
     WatchlistModule,
     UserModule,
+    PortfolioModule,
   ],
 })
 export class AppModule {}

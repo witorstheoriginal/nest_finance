@@ -9,8 +9,8 @@ export class Portfolio {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Position' })
-  positions: Position[];
+  /*   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Position' })
+  positions: Position[]; */
 
   @Prop({ required: true })
   ownerId: string;
