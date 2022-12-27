@@ -4,6 +4,16 @@ import { Portfolio } from './portfolio.schema';
 
 export type PositionDocument = HydratedDocument<Position>;
 
+enum PositionType {
+  Buy = 'buy',
+  Sell = 'sell',
+}
+
+enum StatusType {
+  Open = 'open',
+  Close = 'close',
+}
+
 @Schema()
 export class Position {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Portfolio' })
@@ -16,13 +26,13 @@ export class Position {
   quantity: number;
 
   @Prop({ required: true })
-  status: 'opened' | 'closed';
+  status: StatusType;
 
   @Prop({ required: true })
   symbol: string;
 
-  @Prop({ required: true })
-  type: 'buy' | 'sell';
+  @Prop({ required: true, enum: PositionType })
+  type: PositionType;
 
   @Prop({ required: true })
   date: string;
