@@ -12,6 +12,8 @@ import {
 import { JwtService } from '@nestjs/jwt';
 
 import { IsString } from 'class-validator';
+import { CreatePortfolioDto } from 'src/portfolio/dto/create-portfolio.dto';
+import { PortfolioService } from 'src/portfolio/services/portfolio.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { CurrentUserEntity } from './types';
@@ -29,11 +31,21 @@ export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly portfolioService: PortfolioService,
   ) {}
 
   @Post('signup')
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    const user = await this.userService.create(createUserDto);
+
+    if (user) {
+      const portfolio = this.portfolioService.create(
+        { name: 'First Portfolio' },
+        user._id.toString(),
+      );
+    }
+
+    return user;
   }
 
   @Post('signin')

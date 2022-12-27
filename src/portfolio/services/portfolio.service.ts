@@ -7,10 +7,11 @@ import {
   PortfolioDocument,
 } from 'src/portfolio/schemas/portfolio.schema';
 import { CreatePortfolioDto } from '../dto/create-portfolio.dto';
-import { updatePortfolioDto } from '../dto/update-portfolio.dto';
 import { OpenPositionDto } from '../dto/open-position.dto';
 import { ClosePositionDto } from '../dto/close-position.dto';
 import { PositionDocument } from '../schemas/position.schema';
+import { UserDocument } from 'src/user/schemas/user.schema';
+import { UpdatePortfolioDto } from '../dto/update-portfolio.dto';
 
 @Injectable()
 export class PortfolioService {
@@ -18,6 +19,7 @@ export class PortfolioService {
     @InjectModel(Portfolio.name)
     private portfolioModel: Model<PortfolioDocument>,
     private positionModel: Model<PositionDocument>,
+    private userModel: Model<UserDocument>,
   ) {}
 
   create(
@@ -32,14 +34,32 @@ export class PortfolioService {
     return createdPortfolio.save();
   }
 
-  find(id: string, ownerId: string): Promise<PortfolioDocument | null> {
+  findPortfolio(
+    id: string,
+    ownerId: string,
+  ): Promise<PortfolioDocument | null> {
     return this.portfolioModel.findOne({ _id: id, ownerId }).exec();
   }
 
-  openPosition(params: { openPositionDto: OpenPositionDto; ownerId: string }) {
+  findPosition(id: string, ownerId: string) {
+    return this.positionModel.findOne({ _id: id, ownerId });
+  }
+
+  openPosition(params: {
+    portfolioId: string;
+    openPositionDto: OpenPositionDto;
+    ownerId: string;
+  }) {
+    const portfolio = this.findPortfolio(params.portfolioId, params.ownerId);
+
+    if (!portfolio) {
+      throw new Error("Portfolio id passed doesn't belong to current user.");
+    }
+
     return this.positionModel.create({
       ...params.openPositionDto,
       ownerId: params.ownerId,
+      portfolioId: params.portfolioId,
     });
   }
 
@@ -47,6 +67,15 @@ export class PortfolioService {
     closePositionDto: ClosePositionDto;
     ownerId: string;
   }) {
+    const position = this.findPosition(
+      params.closePositionDto.id,
+      params.ownerId,
+    );
+
+    if (!position) {
+      throw new Error("Portfolio id passed doesn't belong to current user.");
+    }
+
     return this.positionModel
       .deleteOne({ ...params.closePositionDto, ownerId: params.ownerId })
       .exec();
@@ -54,7 +83,7 @@ export class PortfolioService {
 
   update(params: {
     id: string;
-    updatePortfolioDto: updatePortfolioDto;
+    updatePortfolioDto: UpdatePortfolioDto;
     ownerId: string;
   }): Promise<PortfolioDocument | null> {
     return this.portfolioModel

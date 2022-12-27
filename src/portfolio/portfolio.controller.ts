@@ -16,6 +16,7 @@ import { PortfolioService } from './services/portfolio.service';
 import { CreatePortfolioDto } from './dto/create-portfolio.dto';
 import { ClosePositionDto } from './dto/close-position.dto';
 import { OpenPositionDto } from './dto/open-position.dto';
+import { UpdatePortfolioDto } from './dto/update-portfolio.dto';
 
 export class FindOneParams {
   @IsString()
@@ -40,7 +41,7 @@ export class PortfolioController {
     @Param() { id }: FindOneParams,
     @CurrentUser() user: CurrentUserEntity,
   ) {
-    return this.portfolioService.find(id, user.sub);
+    return this.portfolioService.findPortfolio(id, user.sub);
   }
 
   @Post(':id/positions/open')
@@ -50,7 +51,7 @@ export class PortfolioController {
     @CurrentUser() user: CurrentUserEntity,
   ) {
     return this.portfolioService.openPosition({
-      id,
+      portfolioId: id,
       openPositionDto,
       ownerId: user.sub,
     });
@@ -58,12 +59,10 @@ export class PortfolioController {
 
   @Post(':id/positions/close')
   closePosition(
-    @Param() { id }: FindOneParams,
     @Body() closePositionDto: ClosePositionDto,
     @CurrentUser() user: CurrentUserEntity,
   ) {
     return this.portfolioService.closePosition({
-      id,
       closePositionDto,
       ownerId: user.sub,
     });
