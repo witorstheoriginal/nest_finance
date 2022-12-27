@@ -5,7 +5,7 @@ import { User, UserDocument } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from './dto/login-user.dto';
-import { JwtService } from '@nestjs/jwt';
+import { PortfolioDocument } from 'src/portfolio/schemas/portfolio.schema';
 
 const saltRounds = 10;
 
@@ -14,6 +14,7 @@ export class UserService {
   constructor(
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
+    private portfolioModel: Model<PortfolioDocument>,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<UserDocument | null> {
@@ -23,10 +24,17 @@ export class UserService {
       throw new Error('User already registered.');
     }
 
-    return this.userModel.create({
+    const newUser = await this.userModel.create({
       ...createUserDto,
       password: await bcrypt.hash(createUserDto.password, saltRounds),
     });
+    const portfolio = this.portfolioModel.create(
+      { name: 'First Portfolio' },
+      { _id: newUser._id.toString() },
+    );
+
+    console.log(newUser._id.toString());
+    return newUser;
   }
 
   find(email: string, password: string): Promise<UserDocument | null> {
