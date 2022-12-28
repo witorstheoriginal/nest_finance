@@ -45,29 +45,42 @@ export class PortfolioService {
     return this.positionModel.findOne({ _id: id, ownerId });
   }
 
-  openPosition(params: {
-    portfolioId: string;
-    openPositionDto: OpenPositionDto;
-    ownerId: string;
-  }) {
-    const portfolio = this.findPortfolio(params.portfolioId, params.ownerId);
+  getDefaultPortfolio(ownerId: string) {
+    return this.portfolioModel.findOne({ ownerId, name: 'Default' });
+  }
 
-    if (!portfolio) {
-      throw new Error("Portfolio id passed doesn't belong to current user.");
-    }
+  openPosition(params: { openPositionDto: OpenPositionDto; ownerId: string }) {
+    const portfolioCount = this.portfolioModel.countDocuments(
+      {
+        id: params.openPositionDto.portfolioId,
+        ownerId: params.ownerId,
+      },
+      async (count: number) => {
+        if (count <= 0) {
+          const defaultPortfolio = await this.getDefaultPortfolio(
+            params.ownerId,
+          );
+          return this.positionModel.create({
+            ...params.openPositionDto,
+            ownerId: params.ownerId,
+            portfolioId: defaultPortfolio,
+          });
+        }
+      },
+    );
 
     return this.positionModel.create({
       ...params.openPositionDto,
       ownerId: params.ownerId,
-      portfolioId: params.portfolioId,
+      portfolioId: params.openPositionDto.portfolioId,
     });
   }
 
-  closePosition(params: {
+  async closePosition(params: {
     closePositionDto: ClosePositionDto;
     ownerId: string;
   }) {
-    const position = this.findPosition(
+    const position = await this.findPosition(
       params.closePositionDto.id,
       params.ownerId,
     );
