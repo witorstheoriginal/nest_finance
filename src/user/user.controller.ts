@@ -1,30 +1,21 @@
 import {
   Body,
   Controller,
-  Delete,
-  Get,
-  Param,
   Post,
   Put,
   UnauthorizedException,
   HttpCode,
 } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common/decorators';
 import { JwtService } from '@nestjs/jwt';
-
-import { IsString } from 'class-validator';
-import { CreatePortfolioDto } from 'src/portfolio/dto/create-portfolio.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { StatusType } from 'src/portfolio/schemas/position.schema';
 import { PortfolioService } from 'src/portfolio/services/portfolio.service';
+import { CurrentUser } from './decorators';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { CurrentUserEntity } from './types';
 import { UserService } from './user.service';
-
-const userId = '639c2eaad5318fb8cd1d1f4c';
-
-export class FindOneParams {
-  @IsString()
-  id: string;
-}
 
 @Controller('user')
 export class UserController {
@@ -61,6 +52,16 @@ export class UserController {
     return {
       access_token: this.jwtService.sign(payload, { expiresIn: '1h' }),
     };
+  }
+
+  @Put('balance')
+  @UseGuards(AuthGuard())
+  updateById(@Body() amount: number, @CurrentUser() user: CurrentUserEntity) {
+    return this.userService.updateBalance(
+      user.sub,
+      amount,
+      'close' as StatusType,
+    );
   }
 
   /*@ Get(':id') d

@@ -16,6 +16,7 @@ import {
   Position,
   PositionSchema,
 } from 'src/portfolio/schemas/position.schema';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import {
       inject: [ConfigService],
     }),
     PortfolioModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   controllers: [UserController],
   providers: [UserService, JwtStrategy, PortfolioService],

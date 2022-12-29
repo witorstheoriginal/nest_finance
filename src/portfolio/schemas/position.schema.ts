@@ -14,6 +14,12 @@ export enum StatusType {
   Close = 'close',
 }
 
+class Opening {
+  price: number;
+  quantity: number;
+  date: string;
+}
+
 @Schema()
 export class Position {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Portfolio' })
@@ -40,12 +46,8 @@ export class Position {
   @Prop({ required: true })
   ownerId: string;
 
-  @Prop({ type: Object })
-  opening: {
-    price: number;
-    quantity: number;
-    date: string;
-  };
+  @Prop(Opening)
+  opening?: Opening;
 }
 
 export const PositionSchema = SchemaFactory.createForClass(Position);

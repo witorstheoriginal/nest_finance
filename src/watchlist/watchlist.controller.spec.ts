@@ -1,5 +1,6 @@
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { CurrentUserEntity } from 'src/user/types';
 import { createMongoTestModule } from '../../test/mongo-test-module';
 import { Watchlist, WatchlistSchema } from './schemas/watchlist.schema';
 import { WatchlistController } from './watchlist.controller';
@@ -10,13 +11,19 @@ type SampleDataConfig = { symbols: string[] };
 describe('WatchlistController', () => {
   const { module: mongoTestModule, closeConnection } = createMongoTestModule();
   let watchlistController: WatchlistController;
-
+  const user: CurrentUserEntity = {
+    sub: '63a1755deffc5562a687d589',
+    email: 'dooku@yahoo.it',
+  };
   const createSampleData = (config?: SampleDataConfig) =>
-    watchlistController.create({
-      name: 'test1',
-      description: 'description1',
-      symbols: config?.symbols || ['A', 'B'],
-    });
+    watchlistController.create(
+      {
+        name: 'test1',
+        description: 'description1',
+        symbols: config?.symbols || ['A', 'B'],
+      },
+      user,
+    );
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
@@ -54,9 +61,12 @@ describe('WatchlistController', () => {
   describe('/:id', () => {
     it('should get the watchlist with the given id', async () => {
       const sampleData = await createSampleData();
-      const res = await watchlistController.findById({
-        id: sampleData!._id.toString(),
-      });
+      const res = await watchlistController.findById(
+        {
+          id: sampleData!._id.toString(),
+        },
+        user,
+      );
 
       expect(res?.name).toBe('test1');
       expect(res?.description).toBe('description1');
@@ -71,6 +81,7 @@ describe('WatchlistController', () => {
           name: 'test2',
           description: 'alternative description',
         },
+        user,
       );
 
       expect(res?.name).toBe('test2');
@@ -80,12 +91,18 @@ describe('WatchlistController', () => {
 
     it('should delete the watchlist with the given id', async () => {
       const sampleData = await createSampleData();
-      await watchlistController.deleteById({
-        id: sampleData!._id.toString(),
-      });
-      const res = await watchlistController.findById({
-        id: sampleData!._id.toString(),
-      });
+      await watchlistController.deleteById(
+        {
+          id: sampleData!._id.toString(),
+        },
+        user,
+      );
+      const res = await watchlistController.findById(
+        {
+          id: sampleData!._id.toString(),
+        },
+        user,
+      );
       expect(res).toBe(null);
     });
   });
@@ -96,6 +113,7 @@ describe('WatchlistController', () => {
       const res = await watchlistController.updateSymbols(
         { id: sampleData!._id.toString() },
         { add: ['MON'], remove: ['A', 'B'] },
+        user,
       );
       console.log(res);
       expect(res?.name).toBe('test1');
