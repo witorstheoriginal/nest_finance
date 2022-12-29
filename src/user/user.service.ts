@@ -54,6 +54,24 @@ export class UserService {
     return isValid ? user : null;
   }
 
+  async checkBalance(userId: string, price: number): Promise<boolean> {
+    const user = await this.userModel.findOne({ _id: userId });
+
+    return user && user.balance >= price ? true : false;
+  }
+
+  async updateBalance(userId: string, price: number) {
+    const user = await this.userModel.findOne({ _id: userId });
+
+    if (!user) {
+      throw new Error('No user with that id.');
+    }
+
+    return this.userModel
+      .findOneAndUpdate({ _id: userId }, { balance: user.balance - price })
+      .exec();
+  }
+
   /*
 
   update(params: {

@@ -39,10 +39,7 @@ export class UserController {
     const user = await this.userService.create(createUserDto);
 
     if (user) {
-      const portfolio = this.portfolioService.create(
-        { name: 'First Portfolio' },
-        user._id.toString(),
-      );
+      this.portfolioService.create({ name: 'Default' }, user._id.toString());
     }
 
     return user;

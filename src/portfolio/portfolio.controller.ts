@@ -17,6 +17,8 @@ import { CreatePortfolioDto } from './dto/create-portfolio.dto';
 import { ClosePositionDto } from './dto/close-position.dto';
 import { OpenPositionDto } from './dto/open-position.dto';
 import { UpdatePortfolioDto } from './dto/update-portfolio.dto';
+import { UserService } from 'src/user/user.service';
+import { FinnhubService } from 'src/core/services/finnhub.service';
 
 export class FindOneParams {
   @IsString()
@@ -26,13 +28,18 @@ export class FindOneParams {
 @Controller('portfolio')
 @UseGuards(AuthGuard())
 export class PortfolioController {
-  constructor(private readonly portfolioService: PortfolioService) {}
+  constructor(
+    private readonly portfolioService: PortfolioService,
+    private readonly userService: UserService,
+    private readonly finnhubService: FinnhubService,
+  ) {}
 
   @Post()
   create(
     @Body() createPortfolioDto: CreatePortfolioDto,
     @CurrentUser() user: CurrentUserEntity,
   ) {
+    console.log(createPortfolioDto);
     return this.portfolioService.create(createPortfolioDto, user.sub);
   }
 
@@ -45,18 +52,28 @@ export class PortfolioController {
   }
 
   @Post(':id/positions/open')
-  openPosition(
-    @Param() { id }: FindOneParams,
+  async openPosition(
     @Body() openPositionDto: OpenPositionDto,
     @CurrentUser() user: CurrentUserEntity,
   ) {
+    const price = await this.finnhubService.getStockPrice(
+      openPositionDto.symbol,
+    );
+    const isBalanceSufficient = await this.userService.checkBalance(
+      user.sub,
+      price * openPositionDto.quantity,
+    );
+
+    if (!isBalanceSufficient)
+      throw new Error('Balance too low to open new position!');
+
     return this.portfolioService.openPosition({
-      portfolioId: id,
       openPositionDto,
       ownerId: user.sub,
+      price,
     });
   }
-
+  //aggiornare balance utente su entrambi
   @Post(':id/positions/close')
   closePosition(
     @Body() closePositionDto: ClosePositionDto,

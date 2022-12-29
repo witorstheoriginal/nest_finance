@@ -1,5 +1,4 @@
-import { IsArray, IsString } from 'class-validator';
-import { Position } from '../schemas/position.schema';
+import { IsString } from 'class-validator';
 
 export class CreatePortfolioDto {
   @IsString()

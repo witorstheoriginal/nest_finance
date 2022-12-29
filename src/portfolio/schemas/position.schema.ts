@@ -39,6 +39,13 @@ export class Position {
 
   @Prop({ required: true })
   ownerId: string;
+
+  @Prop()
+  opening: {
+    price: number;
+    quantity: number;
+    date: string;
+  };
 }
 
 export const PositionSchema = SchemaFactory.createForClass(Position);

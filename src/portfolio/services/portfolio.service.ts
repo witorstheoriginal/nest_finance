@@ -1,7 +1,6 @@
 import { Connection, Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-//import { CreatePortfolioDto } from './dto/portfolio.dto';
 import {
   Portfolio,
   PortfolioDocument,
@@ -9,8 +8,7 @@ import {
 import { CreatePortfolioDto } from '../dto/create-portfolio.dto';
 import { OpenPositionDto } from '../dto/open-position.dto';
 import { ClosePositionDto } from '../dto/close-position.dto';
-import { PositionDocument } from '../schemas/position.schema';
-import { UserDocument } from 'src/user/schemas/user.schema';
+import { Position, PositionDocument } from '../schemas/position.schema';
 import { UpdatePortfolioDto } from '../dto/update-portfolio.dto';
 
 @Injectable()
@@ -18,8 +16,8 @@ export class PortfolioService {
   constructor(
     @InjectModel(Portfolio.name)
     private portfolioModel: Model<PortfolioDocument>,
+    @InjectModel(Position.name)
     private positionModel: Model<PositionDocument>,
-    private userModel: Model<UserDocument>,
   ) {}
 
   create(
@@ -49,30 +47,27 @@ export class PortfolioService {
     return this.portfolioModel.findOne({ ownerId, name: 'Default' });
   }
 
-  openPosition(params: { openPositionDto: OpenPositionDto; ownerId: string }) {
-    const portfolioCount = this.portfolioModel.countDocuments(
-      {
-        id: params.openPositionDto.portfolioId,
-        ownerId: params.ownerId,
-      },
-      async (count: number) => {
-        if (count <= 0) {
-          const defaultPortfolio = await this.getDefaultPortfolio(
-            params.ownerId,
-          );
-          return this.positionModel.create({
-            ...params.openPositionDto,
-            ownerId: params.ownerId,
-            portfolioId: defaultPortfolio,
-          });
-        }
-      },
-    );
+  async openPosition(params: {
+    openPositionDto: OpenPositionDto;
+    ownerId: string;
+    price: number;
+  }) {
+    const count = await this.portfolioModel.countDocuments({
+      id: params.openPositionDto.portfolioId,
+      ownerId: params.ownerId,
+    });
+    const portfolioId =
+      count === 0
+        ? await this.getDefaultPortfolio(params.ownerId)
+        : params.openPositionDto.portfolioId;
 
     return this.positionModel.create({
       ...params.openPositionDto,
       ownerId: params.ownerId,
-      portfolioId: params.openPositionDto.portfolioId,
+      portfolioId,
+      status: 'open',
+      date: new Date().toString(),
+      price: params.price,
     });
   }
 
@@ -90,7 +85,17 @@ export class PortfolioService {
     }
 
     return this.positionModel
-      .deleteOne({ ...params.closePositionDto, ownerId: params.ownerId })
+      .updateOne(
+        { _id: params.closePositionDto.id, ownerId: params.ownerId },
+        {
+          opening: {
+            price: position.price,
+            quantity: position.quantity,
+            date: position.date,
+          },
+          status: 'close',
+        },
+      )
       .exec();
   }
 
