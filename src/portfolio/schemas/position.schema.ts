@@ -40,7 +40,7 @@ export class Position {
   @Prop({ required: true })
   ownerId: string;
 
-  @Prop()
+  @Prop({ type: Object })
   opening: {
     price: number;
     quantity: number;

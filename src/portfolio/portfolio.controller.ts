@@ -65,8 +65,10 @@ export class PortfolioController {
       price * openPositionDto.quantity,
     );
 
-    if (!isBalanceSufficient)
-      throw new Error('Balance too low to open new position!');
+    if (!isBalanceSufficient) {
+      console.log('Balance too low to open new position!');
+      return { message: 'Balance too low to open new position!' };
+    }
 
     this.userService.updateBalance(user.sub, price, 'open' as StatusType);
 
@@ -87,8 +89,12 @@ export class PortfolioController {
       user.sub,
     );
 
-    if (!position)
-      throw new Error("Position with given id doesn't belong to current user.");
+    if (!position) {
+      console.log("Position with given id doesn't belong to current user.");
+      return {
+        message: "Position with given id doesn't belong to current user.",
+      };
+    }
     this.userService.updateBalance(
       user.sub,
       position.price,
