@@ -62,10 +62,8 @@ export class UserService {
   }
 
   async updateBalance(userId: string, value: number) {
-    const newBalance = user.balance + positionType === 'buy' ? -value : +value;
-
     return this.userModel
-      .findOneAndUpdate({ _id: userId }, { balance: newBalance })
+      .findOneAndUpdate({ _id: userId }, { $inc: { balance: value } })
       .exec();
   }
 
