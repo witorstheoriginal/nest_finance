@@ -9,7 +9,7 @@ enum PositionType {
   Sell = 'sell',
 }
 
-enum StatusType {
+export enum StatusType {
   Open = 'open',
   Close = 'close',
 }

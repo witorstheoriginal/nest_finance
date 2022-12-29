@@ -5,6 +5,7 @@ import { User, UserDocument } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from './dto/login-user.dto';
+import { StatusType } from 'src/portfolio/schemas/position.schema';
 
 const saltRounds = 10;
 
@@ -60,15 +61,17 @@ export class UserService {
     return user && user.balance >= price ? true : false;
   }
 
-  async updateBalance(userId: string, price: number) {
+  async updateBalance(userId: string, price: number, statusType: StatusType) {
     const user = await this.userModel.findOne({ _id: userId });
 
     if (!user) {
       throw new Error('No user with that id.');
     }
 
+    const newBalance = user.balance + statusType === 'open' ? -price : +price;
+
     return this.userModel
-      .findOneAndUpdate({ _id: userId }, { balance: user.balance - price })
+      .findOneAndUpdate({ _id: userId }, { balance: newBalance })
       .exec();
   }
 

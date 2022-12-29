@@ -19,6 +19,7 @@ import { OpenPositionDto } from './dto/open-position.dto';
 import { UpdatePortfolioDto } from './dto/update-portfolio.dto';
 import { UserService } from 'src/user/user.service';
 import { FinnhubService } from 'src/core/services/finnhub.service';
+import { StatusType } from './schemas/position.schema';
 
 export class FindOneParams {
   @IsString()
@@ -67,18 +68,33 @@ export class PortfolioController {
     if (!isBalanceSufficient)
       throw new Error('Balance too low to open new position!');
 
+    this.userService.updateBalance(user.sub, price, 'open' as StatusType);
+
     return this.portfolioService.openPosition({
       openPositionDto,
       ownerId: user.sub,
       price,
     });
   }
-  //aggiornare balance utente su entrambi
+
   @Post(':id/positions/close')
-  closePosition(
+  async closePosition(
     @Body() closePositionDto: ClosePositionDto,
     @CurrentUser() user: CurrentUserEntity,
   ) {
+    const position = await this.portfolioService.findPosition(
+      closePositionDto.id,
+      user.sub,
+    );
+
+    if (!position)
+      throw new Error("Position with given id doesn't belong to current user.");
+    this.userService.updateBalance(
+      user.sub,
+      position.price,
+      'close' as StatusType,
+    );
+
     return this.portfolioService.closePosition({
       closePositionDto,
       ownerId: user.sub,
