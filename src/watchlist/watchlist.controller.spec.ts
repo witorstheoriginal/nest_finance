@@ -1,4 +1,5 @@
 import { MongooseModule } from '@nestjs/mongoose';
+import { PassportModule } from '@nestjs/passport';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CurrentUserEntity } from 'src/user/types';
 import { createMongoTestModule } from '../../test/mongo-test-module';
@@ -7,14 +8,17 @@ import { WatchlistController } from './watchlist.controller';
 import { WatchlistService } from './watchlist.service';
 
 type SampleDataConfig = { symbols: string[] };
+const user: CurrentUserEntity = {
+  sub: '63a1755deffc5562a687d589',
+  email: 'dooku@yahoo.it',
+};
 
 describe('WatchlistController', () => {
   const { module: mongoTestModule, closeConnection } = createMongoTestModule();
   let watchlistController: WatchlistController;
-  const user: CurrentUserEntity = {
-    sub: '63a1755deffc5562a687d589',
-    email: 'dooku@yahoo.it',
-  };
+
+  //beforeAll(async () => {});
+
   const createSampleData = (config?: SampleDataConfig) =>
     watchlistController.create(
       {
@@ -32,6 +36,7 @@ describe('WatchlistController', () => {
         MongooseModule.forFeature([
           { name: Watchlist.name, schema: WatchlistSchema },
         ]),
+        PassportModule.register({ defaultStrategy: 'jwt' }),
       ],
       controllers: [WatchlistController],
       providers: [WatchlistService],
@@ -115,7 +120,7 @@ describe('WatchlistController', () => {
         { add: ['MON'], remove: ['A', 'B'] },
         user,
       );
-      console.log(res);
+
       expect(res?.name).toBe('test1');
       expect(res?.description).toBe('description1');
       expect(res?.symbols).toEqual(['MON']);

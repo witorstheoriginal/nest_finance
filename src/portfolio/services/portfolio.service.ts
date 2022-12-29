@@ -8,7 +8,11 @@ import {
 import { CreatePortfolioDto } from '../dto/create-portfolio.dto';
 import { OpenPositionDto } from '../dto/open-position.dto';
 import { ClosePositionDto } from '../dto/close-position.dto';
-import { Position, PositionDocument } from '../schemas/position.schema';
+import {
+  Position,
+  PositionDocument,
+  StatusType,
+} from '../schemas/position.schema';
 import { UpdatePortfolioDto } from '../dto/update-portfolio.dto';
 
 @Injectable()
@@ -93,7 +97,9 @@ export class PortfolioService {
             quantity: position.quantity,
             date: position.date,
           },
-          status: 'close',
+          status: StatusType.Close,
+          date: new Date().toString(),
+          price: 
         },
       )
       .exec();

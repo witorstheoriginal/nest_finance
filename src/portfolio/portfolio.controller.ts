@@ -19,7 +19,8 @@ import { OpenPositionDto } from './dto/open-position.dto';
 import { UpdatePortfolioDto } from './dto/update-portfolio.dto';
 import { UserService } from 'src/user/user.service';
 import { FinnhubService } from 'src/core/services/finnhub.service';
-import { StatusType } from './schemas/position.schema';
+import { Catch, UseFilters } from '@nestjs/common/decorators';
+import { HttpException, ForbiddenException } from '@nestjs/common';
 
 export class FindOneParams {
   @IsString()
@@ -40,7 +41,6 @@ export class PortfolioController {
     @Body() createPortfolioDto: CreatePortfolioDto,
     @CurrentUser() user: CurrentUserEntity,
   ) {
-    console.log(createPortfolioDto);
     return this.portfolioService.create(createPortfolioDto, user.sub);
   }
 
@@ -62,15 +62,17 @@ export class PortfolioController {
     );
     const isBalanceSufficient = await this.userService.checkBalance(
       user.sub,
-      price * openPositionDto.quantity,
+      -price * openPositionDto.quantity,
     );
 
     if (!isBalanceSufficient) {
-      console.log('Balance too low to open new position!');
-      return { message: 'Balance too low to open new position!' };
+      throw new ForbiddenException('Balance too low to open new position!');
     }
 
-    this.userService.updateBalance(user.sub, price, 'open' as StatusType);
+    await this.userService.updateBalance(
+      user.sub,
+      price * openPositionDto.quantity,
+    );
 
     return this.portfolioService.openPosition({
       openPositionDto,
@@ -90,15 +92,13 @@ export class PortfolioController {
     );
 
     if (!position) {
-      console.log("Position with given id doesn't belong to current user.");
-      return {
-        message: "Position with given id doesn't belong to current user.",
-      };
+      throw new ForbiddenException(
+        "Position with given id doesn't belong to current user.",
+      );
     }
-    this.userService.updateBalance(
+    await this.userService.updateBalance(
       user.sub,
-      position.price,
-      'close' as StatusType,
+      position.price * position.quantity,
     );
 
     return this.portfolioService.closePosition({

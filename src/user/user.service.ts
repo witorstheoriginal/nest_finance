@@ -5,7 +5,7 @@ import { User, UserDocument } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from './dto/login-user.dto';
-import { StatusType } from 'src/portfolio/schemas/position.schema';
+import { ForbiddenException, HttpStatus } from '@nestjs/common';
 
 const saltRounds = 10;
 
@@ -20,7 +20,7 @@ export class UserService {
     const user = await this.findByEmail(createUserDto.email);
 
     if (!user) {
-      throw new Error('User already registered.');
+      throw new ForbiddenException('User already registered.');
     }
 
     const newUser = await this.userModel.create({
@@ -61,14 +61,8 @@ export class UserService {
     return user && user.balance >= price ? true : false;
   }
 
-  async updateBalance(userId: string, price: number, statusType: StatusType) {
-    const user = await this.userModel.findOne({ _id: userId });
-
-    if (!user) {
-      throw new Error('No user with that id.');
-    }
-
-    const newBalance = user.balance + statusType === 'open' ? -price : +price;
+  async updateBalance(userId: string, value: number) {
+    const newBalance = user.balance + positionType === 'buy' ? -value : +value;
 
     return this.userModel
       .findOneAndUpdate({ _id: userId }, { balance: newBalance })

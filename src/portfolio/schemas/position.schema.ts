@@ -4,7 +4,7 @@ import { Portfolio } from './portfolio.schema';
 
 export type PositionDocument = HydratedDocument<Position>;
 
-enum PositionType {
+export enum PositionType {
   Buy = 'buy',
   Sell = 'sell',
 }

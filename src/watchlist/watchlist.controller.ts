@@ -9,13 +9,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { IsString } from 'class-validator';
-import { CurrentUser } from 'src/user/decorators';
 import { CurrentUserEntity } from 'src/user/types';
 import { CreateWatchlistDto } from './dto/create-watchlist.dto';
 import { UpdateSymbolsDto } from './dto/update-symbols.dto';
 import { UpdateWatchlistDto } from './dto/update-watchlist.dto';
 import { WatchlistService } from './watchlist.service';
 import { AuthGuard } from '@nestjs/passport';
+import { CurrentUser } from '../user/decorators';
 
 export class FindOneParams {
   @IsString()
