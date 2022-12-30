@@ -20,9 +20,13 @@ class Opening {
   date: string;
 }
 
-@Schema()
+@Schema({ optimisticConcurrency: true })
 export class Position {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Portfolio' })
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Portfolio',
+    required: true,
+  })
   portfolioId: Portfolio;
 
   @Prop({ required: true })

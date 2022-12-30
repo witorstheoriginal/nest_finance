@@ -8,6 +8,7 @@ export class Portfolio {
   @Prop({ required: true })
   name: string;
 
+  //Aggiungere Virtual per positions (documentazione Mongoose)
   /*   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Position' })
   positions: Position[]; */
 

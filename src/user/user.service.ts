@@ -56,14 +56,25 @@ export class UserService {
   }
 
   async checkBalance(userId: string, price: number): Promise<boolean> {
-    const user = await this.userModel.findOne({ _id: userId });
+    const user = await this.userModel
+      .findById(userId)
+      .select({ balance: true });
 
-    return user && user.balance >= price ? true : false;
+    if (!user?.balance) {
+      throw new Error('Failed to find id with given user');
+    }
+
+    return user.balance >= price;
   }
 
   async updateBalance(userId: string, value: number) {
     return this.userModel
-      .findOneAndUpdate({ _id: userId }, { $inc: { balance: value } })
+      .findOneAndUpdate(
+        { _id: userId },
+        { $inc: { balance: value } },
+        { new: true },
+      )
+      .select({ balance: true })
       .exec();
   }
 

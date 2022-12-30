@@ -3,13 +3,15 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  NotFoundException,
   Param,
   Post,
   Put,
   UseGuards,
 } from '@nestjs/common';
 import { IsString } from 'class-validator';
-import { CurrentUser } from 'src/user/decorators';
+import { CurrentUser } from '../user/decorators';
 import { CurrentUserEntity } from 'src/user/types';
 import { AuthGuard } from '@nestjs/passport';
 import { PortfolioService } from './services/portfolio.service';
@@ -17,10 +19,9 @@ import { CreatePortfolioDto } from './dto/create-portfolio.dto';
 import { ClosePositionDto } from './dto/close-position.dto';
 import { OpenPositionDto } from './dto/open-position.dto';
 import { UpdatePortfolioDto } from './dto/update-portfolio.dto';
-import { UserService } from 'src/user/user.service';
-import { FinnhubService } from 'src/core/services/finnhub.service';
-import { Catch, UseFilters } from '@nestjs/common/decorators';
-import { HttpException, ForbiddenException } from '@nestjs/common';
+import { UserService } from '../user/user.service';
+import { FinnhubService } from '../core/services/finnhub.service';
+import { ForbiddenException } from '@nestjs/common';
 
 export class FindOneParams {
   @IsString()
@@ -49,10 +50,11 @@ export class PortfolioController {
     @Param() { id }: FindOneParams,
     @CurrentUser() user: CurrentUserEntity,
   ) {
+    //populate per unire portfolio alle sue posizioni
     return this.portfolioService.findPortfolio(id, user.sub);
   }
 
-  @Post(':id/positions/open')
+  @Post('positions/open')
   async openPosition(
     @Body() openPositionDto: OpenPositionDto,
     @CurrentUser() user: CurrentUserEntity,
@@ -69,6 +71,7 @@ export class PortfolioController {
       throw new ForbiddenException('Balance too low to open new position!');
     }
 
+    //mandare in parallelo queste due
     await this.userService.updateBalance(
       user.sub,
       price * openPositionDto.quantity,
@@ -81,7 +84,7 @@ export class PortfolioController {
     });
   }
 
-  @Post(':id/positions/close')
+  @Post('positions/close')
   async closePosition(
     @Body() closePositionDto: ClosePositionDto,
     @CurrentUser() user: CurrentUserEntity,
@@ -92,18 +95,20 @@ export class PortfolioController {
     );
 
     if (!position) {
-      throw new ForbiddenException(
+      throw new NotFoundException(
         "Position with given id doesn't belong to current user.",
       );
     }
-    await this.userService.updateBalance(
-      user.sub,
-      position.price * position.quantity,
-    );
+
+    const price = await this.finnhubService.getStockPrice(position.symbol);
+
+    await this.userService.updateBalance(user.sub, price * position.quantity);
 
     return this.portfolioService.closePosition({
       closePositionDto,
       ownerId: user.sub,
+      price,
+      position,
     });
   }
 

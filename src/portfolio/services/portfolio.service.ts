@@ -1,16 +1,14 @@
 import { Connection, Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  Portfolio,
-  PortfolioDocument,
-} from 'src/portfolio/schemas/portfolio.schema';
+import { Portfolio, PortfolioDocument } from '../schemas/portfolio.schema';
 import { CreatePortfolioDto } from '../dto/create-portfolio.dto';
 import { OpenPositionDto } from '../dto/open-position.dto';
 import { ClosePositionDto } from '../dto/close-position.dto';
 import {
   Position,
   PositionDocument,
+  PositionType,
   StatusType,
 } from '../schemas/position.schema';
 import { UpdatePortfolioDto } from '../dto/update-portfolio.dto';
@@ -57,19 +55,18 @@ export class PortfolioService {
     price: number;
   }) {
     const count = await this.portfolioModel.countDocuments({
-      id: params.openPositionDto.portfolioId,
+      _id: params.openPositionDto.portfolioId,
       ownerId: params.ownerId,
     });
+    const defaultPortfolio = await this.getDefaultPortfolio(params.ownerId);
     const portfolioId =
-      count === 0
-        ? await this.getDefaultPortfolio(params.ownerId)
-        : params.openPositionDto.portfolioId;
+      count === 0 ? defaultPortfolio?._id : params.openPositionDto.portfolioId;
 
     return this.positionModel.create({
       ...params.openPositionDto,
       ownerId: params.ownerId,
       portfolioId,
-      status: 'open',
+      status: StatusType.Open,
       date: new Date().toString(),
       price: params.price,
     });
@@ -78,29 +75,24 @@ export class PortfolioService {
   async closePosition(params: {
     closePositionDto: ClosePositionDto;
     ownerId: string;
+    price: number;
+    position: PositionDocument;
   }) {
-    const position = await this.findPosition(
-      params.closePositionDto.id,
-      params.ownerId,
-    );
-
-    if (!position) {
-      throw new Error("Portfolio id passed doesn't belong to current user.");
-    }
-
+    //cambiare model manualmente e poi fare save() su quel model
     return this.positionModel
-      .updateOne(
+      .findOneAndUpdate(
         { _id: params.closePositionDto.id, ownerId: params.ownerId },
         {
           opening: {
-            price: position.price,
-            quantity: position.quantity,
-            date: position.date,
+            price: params.position.price,
+            quantity: params.position.quantity,
+            date: params.position.date,
           },
           status: StatusType.Close,
           date: new Date().toString(),
-          price: 
+          price: params.price,
         },
+        { new: true },
       )
       .exec();
   }

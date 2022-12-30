@@ -57,11 +57,7 @@ export class UserController {
   @Put('balance')
   @UseGuards(AuthGuard())
   updateById(@Body() amount: number, @CurrentUser() user: CurrentUserEntity) {
-    return this.userService.updateBalance(
-      user.sub,
-      amount,
-      'close' as StatusType,
-    );
+    return this.userService.updateBalance(user.sub, amount);
   }
 
   /*@ Get(':id') d

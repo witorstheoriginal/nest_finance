@@ -32,7 +32,6 @@ import { PassportModule } from '@nestjs/passport';
       }),
       inject: [ConfigService],
     }),
-    PortfolioModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   controllers: [UserController],
