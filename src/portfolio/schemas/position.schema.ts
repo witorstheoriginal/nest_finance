@@ -14,7 +14,7 @@ export enum StatusType {
   Close = 'close',
 }
 
-class Opening {
+export class Opening {
   price: number;
   quantity: number;
   date: string;

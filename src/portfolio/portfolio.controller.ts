@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
   NotFoundException,
   Param,
   Post,
@@ -50,7 +49,6 @@ export class PortfolioController {
     @Param() { id }: FindOneParams,
     @CurrentUser() user: CurrentUserEntity,
   ) {
-    //populate per unire portfolio alle sue posizioni
     return this.portfolioService.findPortfolio(id, user.sub);
   }
 
@@ -71,17 +69,17 @@ export class PortfolioController {
       throw new ForbiddenException('Balance too low to open new position!');
     }
 
-    //mandare in parallelo queste due
-    await this.userService.updateBalance(
-      user.sub,
-      price * openPositionDto.quantity,
-    );
-
-    return this.portfolioService.openPosition({
-      openPositionDto,
-      ownerId: user.sub,
-      price,
-    });
+    return Promise.all([
+      this.userService.updateBalance(
+        user.sub,
+        price * openPositionDto.quantity,
+      ),
+      this.portfolioService.openPosition({
+        openPositionDto,
+        ownerId: user.sub,
+        price,
+      }),
+    ]);
   }
 
   @Post('positions/close')
