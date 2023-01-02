@@ -105,10 +105,10 @@ describe('PortfolioController', () => {
     });
   });
 
-  describe('/:id/positions/open', () => {
+  describe('/positions/open', () => {
     it('should create a position with the data in the schema', async () => {
       const sampleData = await createSampleData();
-      const res = await portfolioController.openPosition(
+      const [_, res] = await portfolioController.openPosition(
         {
           quantity: 5,
           portfolioId: sampleData!._id.toString(),
@@ -125,10 +125,10 @@ describe('PortfolioController', () => {
     });
   });
 
-  describe('/:id/positions/close', () => {
+  describe('/positions/close', () => {
     it('should close a position storing data in "opening" property', async () => {
       const sampleData = await createSampleData();
-      const res1 = await portfolioController.openPosition(
+      const [_, res1] = await portfolioController.openPosition(
         {
           quantity: 5,
           portfolioId: sampleData!._id.toString(),
