@@ -7,24 +7,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt.strategy';
 import { PortfolioService } from 'src/portfolio/services/portfolio.service';
-import { PortfolioModule } from 'src/portfolio/portfolio.module';
-import {
-  Portfolio,
-  PortfolioSchema,
-} from 'src/portfolio/schemas/portfolio.schema';
-import {
-  Position,
-  PositionSchema,
-} from 'src/portfolio/schemas/position.schema';
 import { PassportModule } from '@nestjs/passport';
+import { PortfolioModule } from 'src/portfolio/portfolio.module';
+import { forwardRef } from '@nestjs/common/utils/forward-ref.util';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema },
-      { name: Portfolio.name, schema: PortfolioSchema },
-      { name: Position.name, schema: PositionSchema },
-    ]),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -33,9 +22,10 @@ import { PassportModule } from '@nestjs/passport';
       inject: [ConfigService],
     }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
+    forwardRef(() => PortfolioModule),
   ],
   controllers: [UserController],
-  providers: [UserService, JwtStrategy, PortfolioService],
+  providers: [UserService, JwtStrategy],
   exports: [UserService],
 })
 export class UserModule {}
