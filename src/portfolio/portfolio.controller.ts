@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { IsString } from 'class-validator';
 import { CurrentUser } from '../user/decorators';
-import { CurrentUserEntity } from 'src/user/types';
+import { CurrentUserEntity } from '../user/types';
 import { AuthGuard } from '@nestjs/passport';
 import { PortfolioService } from './services/portfolio.service';
 import { CreatePortfolioDto } from './dto/create-portfolio.dto';

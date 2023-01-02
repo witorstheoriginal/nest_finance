@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { IsString } from 'class-validator';
-import { CurrentUserEntity } from 'src/user/types';
+import { CurrentUserEntity } from '../user/types';
 import { CreateWatchlistDto } from './dto/create-watchlist.dto';
 import { UpdateSymbolsDto } from './dto/update-symbols.dto';
 import { UpdateWatchlistDto } from './dto/update-watchlist.dto';

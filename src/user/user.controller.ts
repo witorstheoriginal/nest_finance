@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
-import { PortfolioService } from 'src/portfolio/services/portfolio.service';
+import { PortfolioService } from '../portfolio/services/portfolio.service';
 import { CurrentUser } from './decorators';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';

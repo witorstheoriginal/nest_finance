@@ -85,6 +85,14 @@ export class UserService {
     return this.userModel.findById({ _id: userId }).exec();
   }
 
+  initUser(id: string, email: string, balance: number) {
+    return this.userModel.create({
+      _id: id,
+      email,
+      balance,
+      password: 'password',
+    });
+  }
   /*
 
   update(params: {

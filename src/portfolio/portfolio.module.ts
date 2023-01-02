@@ -1,8 +1,7 @@
-import { Module } from '@nestjs/common';
-import { forwardRef } from '@nestjs/common/utils/forward-ref.util';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
-import { UserModule } from 'src/user/user.module';
+import { UserModule } from '../user/user.module';
 import { CoreModule } from '../core/core.module';
 import { PortfolioController } from './portfolio.controller';
 import { Portfolio, PortfolioSchema } from './schemas/portfolio.schema';

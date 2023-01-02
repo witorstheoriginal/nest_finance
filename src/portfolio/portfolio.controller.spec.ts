@@ -6,13 +6,21 @@ import { CoreModule } from '../core/core.module';
 import { FinnhubService } from '../core/services/finnhub.service';
 import { User, UserSchema } from '../user/schemas/user.schema';
 import { CurrentUserEntity } from '../user/types';
-import { UserService } from '../user/user.service';
+import { UserController } from '../user/user.controller';
 import { createMongoTestModule } from '../../test/mongo-test-module';
 import { PortfolioController } from './portfolio.controller';
 import { Portfolio, PortfolioSchema } from './schemas/portfolio.schema';
-import { Position, PositionSchema } from './schemas/position.schema';
+import {
+  Position,
+  PositionSchema,
+  PositionType,
+  StatusType,
+} from './schemas/position.schema';
 import { PortfolioService } from './services/portfolio.service';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
+import { UserModule } from '../user/user.module';
+import configuration from '../configuration';
+import { UserService } from '../user/user.service';
 
 const user: CurrentUserEntity = {
   sub: '63a1755deffc5562a687d589',
@@ -24,31 +32,31 @@ describe('PortfolioController', () => {
   let portfolioController: PortfolioController;
 
   const createSampleData = () =>
-    portfolioController.create(
-      {
-        name: 'test 1',
-      },
-      user,
-    );
+    portfolioController.create({ name: 'test 1' }, user);
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       imports: [
         mongoTestModule,
+        ConfigModule.forRoot({
+          load: [configuration],
+          isGlobal: true,
+        }),
         MongooseModule.forFeature([
           { name: Portfolio.name, schema: PortfolioSchema },
           { name: Position.name, schema: PositionSchema },
-          { name: User.name, schema: UserSchema },
         ]),
         PassportModule.register({ defaultStrategy: 'jwt' }),
-        HttpModule,
         CoreModule,
+        UserModule,
       ],
       controllers: [PortfolioController],
-      providers: [PortfolioService, UserService, FinnhubService, ConfigService],
+      providers: [PortfolioService],
     }).compile();
 
     portfolioController = app.get<PortfolioController>(PortfolioController);
+    const userService = app.get<UserService>(UserService);
+    await userService.initUser(user.sub, user.email, 10000);
   });
 
   afterEach(closeConnection);
@@ -108,20 +116,20 @@ describe('PortfolioController', () => {
   describe('/positions/open', () => {
     it('should create a position with the data in the schema', async () => {
       const sampleData = await createSampleData();
-      const [_, res] = await portfolioController.openPosition(
+      const [, res] = await portfolioController.openPosition(
         {
           quantity: 5,
           portfolioId: sampleData!._id.toString(),
           symbol: 'AAPL',
-          type: 'buy',
+          type: PositionType.Buy,
         },
         user,
       );
-
       expect(res?.quantity).toBe(5);
-      expect(res?.portfolioId).toBe(sampleData!._id.toString());
+      expect(res?.portfolioId).toEqual(sampleData!._id);
       expect(res?.symbol).toEqual('AAPL');
-      expect(res?.type).toEqual('buy');
+      expect(res?.status).toEqual(StatusType.Open);
+      expect(res?.type).toEqual(PositionType.Buy);
     });
   });
 
@@ -133,7 +141,7 @@ describe('PortfolioController', () => {
           quantity: 5,
           portfolioId: sampleData!._id.toString(),
           symbol: 'AAPL',
-          type: 'buy',
+          type: PositionType.Buy,
         },
         user,
       );
@@ -145,9 +153,10 @@ describe('PortfolioController', () => {
       );
 
       expect(res?.quantity).toBe(5);
-      expect(res?.portfolioId).toBe(sampleData!._id.toString());
+      expect(res?.portfolioId).toEqual(sampleData!._id);
       expect(res?.symbol).toEqual('AAPL');
-      expect(res?.type).toEqual('buy');
+      expect(res?.type).toEqual(PositionType.Buy);
+      expect(res?.status).toEqual(StatusType.Close);
       expect(res?.opening).toEqual({
         price: res1.price,
         quantity: 5,

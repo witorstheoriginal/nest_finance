@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schemas/user.schema';
 import { UserController } from './user.controller';
@@ -6,10 +6,8 @@ import { UserService } from './user.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt.strategy';
-import { PortfolioService } from 'src/portfolio/services/portfolio.service';
 import { PassportModule } from '@nestjs/passport';
-import { PortfolioModule } from 'src/portfolio/portfolio.module';
-import { forwardRef } from '@nestjs/common/utils/forward-ref.util';
+import { PortfolioModule } from '../portfolio/portfolio.module';
 
 @Module({
   imports: [

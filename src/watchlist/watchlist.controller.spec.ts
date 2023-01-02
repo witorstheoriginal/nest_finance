@@ -1,7 +1,7 @@
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CurrentUserEntity } from 'src/user/types';
+import { CurrentUserEntity } from '../user/types';
 import { createMongoTestModule } from '../../test/mongo-test-module';
 import { Watchlist, WatchlistSchema } from './schemas/watchlist.schema';
 import { WatchlistController } from './watchlist.controller';
