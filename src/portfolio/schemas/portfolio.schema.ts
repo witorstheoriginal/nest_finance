@@ -1,19 +1,33 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { Opening, PositionType, StatusType } from './position.schema';
 
 export type PortfolioDocument = HydratedDocument<Portfolio>;
 
-@Schema()
+export type Position = {
+  portfolioId: string;
+  price: number;
+  quantity: number;
+  status: StatusType;
+  symbol: string;
+  type: PositionType;
+  date: string;
+  ownerId: string;
+  opening?: Opening;
+};
+@Schema({ toJSON: { virtuals: true } })
 export class Portfolio {
   @Prop({ required: true })
   name: string;
-
-  //Aggiungere Virtual per positions (documentazione Mongoose)
-  /*   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Position' })
-  positions: Position[]; */
 
   @Prop({ required: true })
   ownerId: string;
 }
 
 export const PortfolioSchema = SchemaFactory.createForClass(Portfolio);
+
+PortfolioSchema.virtual('positions', {
+  ref: 'Position',
+  localField: '_id',
+  foreignField: 'portfolioId',
+});

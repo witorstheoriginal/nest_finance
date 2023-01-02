@@ -1,5 +1,5 @@
 import { Connection, Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Portfolio, PortfolioDocument } from '../schemas/portfolio.schema';
 import { CreatePortfolioDto } from '../dto/create-portfolio.dto';
@@ -8,7 +8,6 @@ import { ClosePositionDto } from '../dto/close-position.dto';
 import {
   Position,
   PositionDocument,
-  PositionType,
   StatusType,
 } from '../schemas/position.schema';
 import { UpdatePortfolioDto } from '../dto/update-portfolio.dto';
@@ -34,11 +33,14 @@ export class PortfolioService {
     return createdPortfolio.save();
   }
 
-  findPortfolio(
-    id: string,
-    ownerId: string,
-  ): Promise<PortfolioDocument | null> {
-    return this.portfolioModel.findOne({ _id: id, ownerId }).exec();
+  findPortfolio(id: string, ownerId: string) {
+    return this.portfolioModel
+      .findOne({ _id: id, ownerId })
+      .populate({
+        path: 'positions',
+        select: '-__v  -ownerId',
+      })
+      .select({ __v: false, id: false });
   }
 
   findPosition(id: string, ownerId: string) {
@@ -78,23 +80,20 @@ export class PortfolioService {
     price: number;
     position: PositionDocument;
   }) {
-    //cambiare model manualmente e poi fare save() su quel model
-    return this.positionModel
-      .findOneAndUpdate(
-        { _id: params.closePositionDto.id, ownerId: params.ownerId },
-        {
-          opening: {
-            price: params.position.price,
-            quantity: params.position.quantity,
-            date: params.position.date,
-          },
-          status: StatusType.Close,
-          date: new Date().toString(),
-          price: params.price,
-        },
-        { new: true },
-      )
-      .exec();
+    const { position } = params;
+
+    position.opening = {
+      price: position.price,
+      quantity: position.quantity,
+      date: position.date,
+    };
+    position.status = StatusType.Close;
+    position.date = new Date().toString();
+    position.price = params.price;
+
+    await position.save();
+
+    return position;
   }
 
   update(params: {
