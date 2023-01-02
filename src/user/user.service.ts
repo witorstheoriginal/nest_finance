@@ -5,7 +5,7 @@ import { User, UserDocument } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from './dto/login-user.dto';
-import { ForbiddenException, HttpStatus } from '@nestjs/common';
+import { ForbiddenException } from '@nestjs/common';
 
 const saltRounds = 10;
 
@@ -37,9 +37,12 @@ export class UserService {
 
   findByEmail(email: string): Promise<UserDocument | null> {
     return this.userModel
-      .findOne({
-        email,
-      })
+      .findOne(
+        {
+          email,
+        },
+        { password: true },
+      )
       .exec();
   }
 
@@ -76,6 +79,10 @@ export class UserService {
       )
       .select({ balance: true })
       .exec();
+  }
+
+  findMe(userId: string) {
+    return this.userModel.findById({ _id: userId }).exec();
   }
 
   /*

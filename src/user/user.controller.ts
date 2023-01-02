@@ -3,13 +3,13 @@ import {
   Controller,
   Post,
   Put,
+  Get,
   UnauthorizedException,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
-import { UseGuards } from '@nestjs/common/decorators';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
-import { StatusType } from 'src/portfolio/schemas/position.schema';
 import { PortfolioService } from 'src/portfolio/services/portfolio.service';
 import { CurrentUser } from './decorators';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -60,10 +60,12 @@ export class UserController {
     return this.userService.updateBalance(user.sub, amount);
   }
 
-  /*@ Get(':id') d
-  findById(@Param() { id }: FindOneParams) {
-    return this.userService.find(id, userId);
+  @Get('')
+  @UseGuards(AuthGuard())
+  findById(@CurrentUser() user: CurrentUserEntity) {
+    return this.userService.findMe(user.sub);
   }
+  /*
 
   @Post(':id/symbols')
   updateSymbols(
