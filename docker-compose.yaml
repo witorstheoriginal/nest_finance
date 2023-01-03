@@ -1,0 +1,18 @@
+services:
+
+  mongo-db:
+    image: "docker.io/library/mongo:latest"
+    container_name: mongo-container
+    ports:
+      - 27017:27017
+
+  nest-app:
+    build: .
+    container_name: nest-app-container
+    ports:
+      - 3000:3000
+    links:
+      - http://localhost
+    volumes:
+      - nest_app
+

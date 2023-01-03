@@ -26,7 +26,6 @@ export class FindOneParams {
 
 @Controller('watchlist')
 @UseGuards(AuthGuard())
-@UseFilters(MongoExceptionFilter)
 export class WatchlistController {
   constructor(private readonly watchlistService: WatchlistService) {}
 

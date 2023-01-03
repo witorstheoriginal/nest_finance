@@ -8,10 +8,8 @@ import {
   HttpCode,
   UseGuards,
 } from '@nestjs/common';
-import { UseFilters } from '@nestjs/common/decorators';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
-import { MongoExceptionFilter } from 'src/utils/MongoExceptionFilter';
 import { PortfolioService } from '../portfolio/services/portfolio.service';
 import { CurrentUser } from './decorators';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -20,7 +18,6 @@ import { CurrentUserEntity } from './types';
 import { UserService } from './user.service';
 
 @Controller('user')
-@UseFilters(MongoExceptionFilter)
 export class UserController {
   constructor(
     private readonly userService: UserService,
