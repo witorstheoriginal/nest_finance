@@ -19,7 +19,7 @@ export class UserService {
   async create(createUserDto: CreateUserDto): Promise<UserDocument | null> {
     const user = await this.findByEmail(createUserDto.email);
 
-    if (!user) {
+    if (user) {
       throw new ForbiddenException('User already registered.');
     }
 
