@@ -1,18 +1,34 @@
+version: "3.9"
+
 services:
-
   mongo-db:
-    image: "docker.io/library/mongo:latest"
-    container_name: mongo-container
-    ports:
-      - 27017:27017
-
+    image: "mongo:latest"
+    env_file:
+      - ./nest_app/.env
+    #ports:
+    #- 27017:27017
+    container_name: mongo-db-container
+    volumes: 
+    - mongodb_data_container:/data/db
+    networks:
+      - backend
+    
   nest-app:
-    build: .
-    container_name: nest-app-container
+    build: ./nest_app
+    networks:
+    - frontend
+    - backend
     ports:
-      - 3000:3000
-    links:
-      - http://localhost
-    volumes:
-      - nest_app
+    - 3000:3000
+    container_name: nest-app-container
+    env_file:
+      - ./nest_app/.env
+    depends_on: 
+      - mongo-db 
 
+volumes:
+  mongodb_data_container:
+    
+networks:
+  frontend:
+  backend:

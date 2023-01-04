@@ -7,7 +7,6 @@ import {
   Param,
   Post,
   Put,
-  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { IsString } from 'class-validator';
@@ -22,7 +21,6 @@ import { UpdatePortfolioDto } from './dto/update-portfolio.dto';
 import { UserService } from '../user/user.service';
 import { FinnhubService } from '../core/services/finnhub.service';
 import { ForbiddenException } from '@nestjs/common';
-import { MongoExceptionFilter } from 'src/utils/MongoExceptionFilter';
 
 export class FindOneParams {
   @IsString()
