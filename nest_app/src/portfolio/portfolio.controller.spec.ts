@@ -1,12 +1,8 @@
-import { HttpModule } from '@nestjs/axios';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CoreModule } from '../core/core.module';
-import { FinnhubService } from '../core/services/finnhub.service';
-import { User, UserSchema } from '../user/schemas/user.schema';
 import { CurrentUserEntity } from '../user/types';
-import { UserController } from '../user/user.controller';
 import { createMongoTestModule } from '../../test/mongo-test-module';
 import { PortfolioController } from './portfolio.controller';
 import { Portfolio, PortfolioSchema } from './schemas/portfolio.schema';
