@@ -72,7 +72,7 @@ export class PortfolioController {
     return Promise.all([
       this.userService.updateBalance(
         user.sub,
-        price * openPositionDto.quantity,
+        price * -openPositionDto.quantity,
       ),
       this.portfolioService.openPosition({
         openPositionDto,
