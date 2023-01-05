@@ -4,14 +4,16 @@ services:
   mongo-db:
     image: "mongo:latest"
     env_file:
-      - ./nest_app/.env
+    - ./nest_app/.env
     #ports:
     #- 27017:27017
     container_name: mongo-db-container
     volumes: 
     - mongodb_data_container:/data/db
     networks:
-      - backend
+    - backend
+    cpu_period: 50000
+    cpu_quota: 25000
     
   nest-app:
     build: ./nest_app
@@ -22,9 +24,11 @@ services:
     - 3000:3000
     container_name: nest-app-container
     env_file:
-      - ./nest_app/.env
+    - ./nest_app/.env
     depends_on: 
-      - mongo-db 
+    - mongo-db 
+    cpu_period: 50000
+    cpu_quota: 25000
 
 volumes:
   mongodb_data_container:
