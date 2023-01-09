@@ -16,8 +16,6 @@ import { UpdateWatchlistDto } from './dto/update-watchlist.dto';
 import { WatchlistService } from './watchlist.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from '../user/decorators';
-import { UseFilters } from '@nestjs/common/decorators';
-import { MongoExceptionFilter } from 'src/utils/MongoExceptionFilter';
 
 export class FindOneParams {
   @IsString()

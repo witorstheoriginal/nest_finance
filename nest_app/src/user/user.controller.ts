@@ -67,30 +67,6 @@ export class UserController {
   }
   /*
 
-  @Post(':id/symbols')
-  updateSymbols(
-    @Param() { id }: FindOneParams,
-    @Body() updateSymbolsDto: UpdateSymbolsDto,
-  ) {
-    return this.watchlistService.updateSymbols({
-      id,
-      updateSymbolsDto,
-      ownerId: userId,
-    });
-  }
-
-  @Put(':id')
-  updateById(
-    @Param() { id }: FindOneParams,
-    @Body() updateWatchlistDto: UpdateWatchlistDto,
-  ) {
-    return this.watchlistService.update({
-      id,
-      updateWatchlistDto,
-      ownerId: userId,
-    });
-  }
-
   @Delete(':id')
   deleteById(@Param() { id }: FindOneParams) {
     return this.watchlistService.delete(id, userId);
