@@ -49,6 +49,7 @@ export class UserController {
       email: user.email,
       sub: user._id.toString(),
     };
+
     return {
       access_token: this.jwtService.sign(payload, { expiresIn: '1h' }),
     };

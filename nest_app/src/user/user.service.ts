@@ -41,7 +41,7 @@ export class UserService {
         {
           email,
         },
-        { password: true },
+        { password: true, email: true, balance: true },
       )
       .exec();
   }
