@@ -49,7 +49,13 @@ export class PortfolioController {
     @Param() { id }: FindOneParams,
     @CurrentUser() user: CurrentUserEntity,
   ) {
-    return this.portfolioService.findPortfolio(id, user.sub);
+    const portfolio = this.portfolioService.findPortfolio(id, user.sub);
+
+    if (!portfolio) {
+      throw new NotFoundException(
+        "You don't have any portfolio with the given id.",
+      );
+    }
   }
 
   @Post('positions/open')
